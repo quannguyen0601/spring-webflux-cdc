@@ -1,0 +1,52 @@
+GET http://localhost:8083 HTTP/1.1
+Accept: application/json
+
+###
+
+GET http://localhost:8083/connector-plugins HTTP/1.1
+Accept: application/json
+
+###
+
+GET http://localhost:8083/connectors HTTP/1.1
+Accept: application/json
+
+###
+POST http://localhost:8083/connectors/ HTTP/1.1
+Accept: application/json
+Content-Type:application/json
+
+{
+    "name": "postgresql-employee-source-connector",
+    "config": {
+      "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+      "tasks.max": "1",
+      "plugin.name": "pgoutput",
+      
+      "database.hostname": "postgres",
+      "database.port": "5432",
+      "database.user": "postgresuser",
+      "database.password": "postgrespw",
+      "database.dbname": "postgres",
+      "schema.include.list": "public",
+      "include.schema.changes": "true",
+      "table.whitelist": "public.user",
+      "database.server.name": "postgre-demo-user",
+      "database.server.id": "5401",  
+      
+      "database.history.kafka.bootstrap.servers": "broker:9092",
+      "database.history.kafka.topic": "public.history",
+      
+      "key.converter.schema.registry.url": "http://schema-registry:8081",
+      "value.converter.schema.registry.url": "http://schema-registry:8081",
+      "key.converter.schemas.enable": "false",
+      "value.converter.schemas.enable": "false"
+    }
+  }
+
+
+  docker-compose exec kafka /kafka/bin/kafka-console-consumer.sh \
+    --bootstrap-server broker:9092 \
+    --from-beginning \
+    --property print.key=true \
+    --topic postgre-demo-user.public.user
